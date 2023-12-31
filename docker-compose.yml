@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  skype:
+    image: python:3.9.18-alpine3.19
+    container_name: con_skype
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: wget --quiet --tries=1 --spider http://localhost:5000/health-check || exit 1z
+      interval: 10s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./app:/var/app
+    working_dir: /var/app
+    command: "sh /var/app/start.sh"

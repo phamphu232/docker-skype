@@ -1,10 +1,12 @@
 import logging
+import requests
 from flask import Flask
 from flask import jsonify
 from flask import request
 from flask import render_template
 from skpy import Skype
 from skpy import SkypeAuthException
+from datetime import date
 
 app = Flask(__name__)
 
@@ -66,6 +68,55 @@ def sendMessage():
             'Result': 'ERROR',
         }
     return result
+
+@app.route('/report', methods=['GET'])
+def report():
+    # GET API KEY: https://redmine.monotos.biz/my/account
+    # YOUR API KEY
+    api_key = request.args.get('key', '')
+    
+    if not api_key:
+        return "The key parameter is required. Visit: https://redmine.monotos.biz/my/account to get api key"
+
+    url = "https://redmine.monotos.biz/time_entries.json?limit=20"
+    headers = {"X-Redmine-API-Key": api_key}
+
+    try:
+        response = requests.get(url, headers=headers, verify=False)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        return f"Requests error: {e}"
+
+    data = response.json()
+
+    if 'time_entries' not in data or not data['time_entries']:
+        return 'No data or your API key is invalid.'
+
+    result = {}
+    spent_on = ''
+
+    # Get spent times of the last day working
+    for item in data['time_entries']:
+        if spent_on and item['spent_on'] != spent_on:
+            break
+
+        project_name = item['project']['name']
+        issue_id = item['issue']['id']
+
+        result.setdefault(project_name, []).append(issue_id)
+        spent_on = item['spent_on']
+
+    now_date = date.today().strftime('%Y/%m/%d')
+    report = f"Daily Report: {now_date}<br/>"
+    report += "Hôm trước:<br/>"
+
+    for project_name, issue_ids in result.items():
+        report += f"&nbsp;&nbsp;&nbsp;&nbsp;{project_name}: #{', #'.join(map(str, issue_ids))}<br/>"
+
+    report += "Hôm nay:<br/>"
+    report += "&nbsp;&nbsp;&nbsp;&nbsp;Tiếp tục task<br/>"
+
+    return report
 
 
 @app.route('/info')

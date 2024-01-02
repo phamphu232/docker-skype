@@ -13,7 +13,7 @@ services:
       timeout: 10s
       retries: 3
     volumes:
-      - /etc/localtime:/etc/localtime:ro
+      # - /etc/localtime:/etc/localtime:ro
       - ./app:/var/app
     working_dir: /var/app
     command: "sh /var/app/start.sh"

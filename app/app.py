@@ -15,36 +15,67 @@ app.logger.addHandler(log_handler)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    error = ''
-    success = ''
+    result = {
+        'Message': '',
+        'Result': '',
+    }
 
     if request.method == 'POST':
+        result = sendMessage()
+
+    return render_template('index.html', result=result)
+
+@app.route('/send', methods=['POST'])
+def send():
+    return jsonify(sendMessage())
+
+def sendMessage():
+    if request.method == 'POST':
         try:
-            username = request.form.get('username', '')
-            password = request.form.get('password', '')
-            recipient = request.form.get('recipient', '')
-            message = request.form.get('message', '')
+            if request.is_json:
+                input = request.get_json()
+            else:
+                input = {
+                    'username': request.form.get('username', ''),
+                    'password': request.form.get('password', ''),
+                    'recipient': request.form.get('recipient', ''),
+                    'message': request.form.get('message', ''),
+                }
 
-            sk = Skype(username, password)
-            ch = sk.chats[recipient]
-            ch.sendMsg(message)
+            sk = Skype(input['username'], input['password'])
+            ch = sk.chats[input['recipient']]
+            ch.sendMsg(input['message'], rich=True)
 
-            success = "The message has been sent to {}".format(recipient)
+            result = {
+                'Message': "The message has been sent to {}".format(input['recipient']),
+                'Result': 'OK',
+            }
         except SkypeAuthException:
-            error = "Login skype failed"
+            result = {
+                'Message': 'Login skype failed',
+                'Result': 'ERROR',
+            }
         except Exception as e:
-            error = f"An unknown error: {str(e)}"
-    return render_template('index.html', error=error, success=success)
+            result = {
+                'Message': f"An unknown error: {str(e)}",
+                'Result': 'ERROR',
+            }
+    else:
+        result = {
+            'Message': 'Method unsupported',
+            'Result': 'ERROR',
+        }
+    return result
 
 
 @app.route('/info')
 def info():
-    resp = {
-        'Resutl': 'OK',
+    result = {
+        'Result': 'OK',
         'Message': 'Success'
     }
 
-    return jsonify(resp)
+    return jsonify(result)
 
 
 @app.route('/health-check')

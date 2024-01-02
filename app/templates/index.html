@@ -40,10 +40,10 @@
     <form class="skype-form" method="post" action="/">
         <h1>Send Skype Message</h1>
 
-        {% if error %}
-        <p style="color: red;">{{ error }}</p>
-        {% elif success %}
-        <p style="color: green;">{{ success }}</p>
+        {% if result['Result'] == 'ERROR' %}
+        <p style="color: red;">{{ result['Message'] }}</p>
+        {% elif result['Result'] == 'OK' %}
+        <p style="color: green;">{{ result['Message'] }}</p>
         {% endif %}
 
         <div class="form-group">

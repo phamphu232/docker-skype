@@ -119,7 +119,7 @@ def report():
         spent_on = item['spent_on']
 
     now_date = date.today().strftime('%Y/%m/%d')
-    report = f"Daily Report: {now_date}<br/>"
+    report = f"*Daily Report: {now_date}*<br/>"
     report += "Hôm trước:<br/>"
 
     for project_name, issue_ids in result.items():

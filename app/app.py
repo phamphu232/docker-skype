@@ -75,10 +75,20 @@ def report():
     user_id = request.args.get('user_id', '')
     
     if not api_key:
-        return "The api_key parameter is required. Visit: https://redmine.monotos.biz/my/account to get api_key"
+        return '''
+            The api_key parameter is required.
+            Visit: <a href="https://redmine.monotos.biz/my/account" target="_blank">
+            https://redmine.monotos.biz/my/account
+            </a> to get your api_key
+        '''
 
     if not user_id:
-        return "The user_id parameter is required. Visit: https://redmine.monotos.biz/work_time/index to get user_id on URL"
+        return '''
+            The user_id parameter is required.
+            Visit:<a href="https://redmine.monotos.biz/work_time/index" target="_blank">
+            https://redmine.monotos.biz/work_time/index
+            </a> to get your user_id on the URL
+        '''
 
     url = f"https://redmine.monotos.biz/time_entries.json?user_id={user_id}&limit=20"
     headers = {"X-Redmine-API-Key": api_key}

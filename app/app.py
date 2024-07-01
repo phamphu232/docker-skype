@@ -71,14 +71,16 @@ def sendMessage():
 
 @app.route('/report', methods=['GET'])
 def report():
-    # GET API KEY: https://redmine.monotos.biz/my/account
-    # YOUR API KEY
-    api_key = request.args.get('key', '')
+    api_key = request.args.get('api_key', '')
+    user_id = request.args.get('user_id', '')
     
     if not api_key:
-        return "The key parameter is required. Visit: https://redmine.monotos.biz/my/account to get api key"
+        return "The api_key parameter is required. Visit: https://redmine.monotos.biz/my/account to get api_key"
 
-    url = "https://redmine.monotos.biz/time_entries.json?limit=20"
+    if not user_id:
+        return "The user_id parameter is required. Visit: https://redmine.monotos.biz/work_time/index to get user_id on URL"
+
+    url = f"https://redmine.monotos.biz/time_entries.json?user_id={user_id}&limit=20"
     headers = {"X-Redmine-API-Key": api_key}
 
     try:
